@@ -558,9 +558,49 @@ async function saveFee(){
   toast('Payment saved! ✅'); closeModal('modal-fee'); loadFees();
 }
 
-// INIT
-$('att-date').value=today();
-loadDashboard();
+// INIT WITH AUTH
+async function initApp() {
+  const { data } = await sb.auth.getSession();
+
+  if (!data.session) {
+    showLogin();
+    return;
+  }
+
+  $('att-date').value = today();
+  loadDashboard();
+}
+
+function showLogin() {
+  document.body.innerHTML = `
+    <div style="display:flex;height:100vh;align-items:center;justify-content:center;background:#0a0e1a;color:white;font-family:sans-serif">
+      <div style="background:#111827;padding:30px;border-radius:12px;width:300px">
+        <h2 style="margin-bottom:20px">Admin Login</h2>
+        <input id="email" placeholder="Email" style="width:100%;margin-bottom:10px;padding:8px">
+        <input id="password" type="password" placeholder="Password" style="width:100%;margin-bottom:10px;padding:8px">
+        <button onclick="login()" style="width:100%;padding:10px;background:#f59e0b;border:none">Login</button>
+      </div>
+    </div>
+  `;
+}
+
+async function login() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('password').value;
+
+  const { error } = await sb.auth.signInWithPassword({
+    email,
+    password
+  });
+
+  if (error) {
+    alert("Login failed: " + error.message);
+  } else {
+    location.reload();
+  }
+}
+
+initApp();
 </script>
 </body>
 </html>
